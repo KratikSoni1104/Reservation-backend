@@ -2,13 +2,14 @@ import User from "../models/Users.js"
 import bcrypt from "bcryptjs";
 import { createError } from "../utils/errors.js";
 import jwt from "jsonwebtoken";
+import _ from "lodash";
 
 export const register = async (req , res , next) => {
     var salt = bcrypt.genSaltSync(10);
     var hash = bcrypt.hashSync(req.body.password, salt);
     try{
         const newUser = new User({
-            username : req.body.username,
+            username : _.capitalize(req.body.username),
             email : req.body.email,
             password : hash,
         })
@@ -23,7 +24,7 @@ export const register = async (req , res , next) => {
 
 export const login = async (req , res , next) => {
     try{
-        const user = await User.findOne({username : req.body.username});
+        const user = await User.findOne({username : _.capitalize(req.body.username)});
         if(!user) return next(createError(404 , "User not found"));
 
         const isCorrectPassword = bcrypt.compareSync(req.body.password, user.password)
